@@ -1,0 +1,109 @@
+[gd_scene load_steps=9 format=3 uid="uid://cooeirfsmdvf2"]
+
+[ext_resource type="Script" path="res://Scripts/CameraController.gd" id="1_el8th"]
+[ext_resource type="Texture2D" uid="uid://c8ay1wv0p5uid" path="res://Textures/Block.png" id="1_fcvn8"]
+[ext_resource type="Script" path="res://Scripts/UI.gd" id="1_tlkem"]
+[ext_resource type="Script" path="res://Scripts/RenderGameOfLife.gd" id="3_1hd7t"]
+[ext_resource type="Script" path="res://Scripts/GameOfLife.gd" id="3_fckyp"]
+[ext_resource type="Script" path="res://Scripts/AddBlock.gd" id="5_40op3"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_scvax"]
+texture = ExtResource("1_fcvn8")
+texture_region_size = Vector2i(1, 1)
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_qghc1"]
+tile_size = Vector2i(1, 1)
+sources/0 = SubResource("TileSetAtlasSource_scvax")
+
+[node name="MainScene" type="Node2D"]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." node_paths=PackedStringArray("game_of_life")]
+script = ExtResource("1_tlkem")
+game_of_life = NodePath("../GameOfLife")
+
+[node name="Panel" type="Panel" parent="CanvasLayer"]
+anchors_preset = -1
+anchor_left = 0.0286458
+anchor_top = 0.62037
+anchor_right = 0.177604
+anchor_bottom = 0.978704
+grow_horizontal = 2
+grow_vertical = 0
+metadata/_edit_use_anchors_ = true
+
+[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GridContainer" type="GridContainer" parent="CanvasLayer/Panel/CenterContainer"]
+layout_mode = 2
+theme_override_constants/h_separation = 15
+
+[node name="Start" type="Button" parent="CanvasLayer/Panel/CenterContainer/GridContainer"]
+layout_mode = 2
+text = "Start"
+
+[node name="NextStep" type="Button" parent="CanvasLayer/Panel/CenterContainer/GridContainer"]
+layout_mode = 2
+text = "Next Step"
+
+[node name="Reset" type="Button" parent="CanvasLayer/Panel/CenterContainer/GridContainer"]
+layout_mode = 2
+text = "Resest
+"
+
+[node name="Speed" type="Label" parent="CanvasLayer/Panel/CenterContainer/GridContainer"]
+layout_mode = 2
+text = "Simulation Speed"
+horizontal_alignment = 1
+
+[node name="HSlider" type="HSlider" parent="CanvasLayer/Panel/CenterContainer/GridContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+min_value = -1.0
+max_value = -0.01
+step = 0.01
+value = -1.0
+
+[node name="Steps" type="Label" parent="CanvasLayer/Panel/CenterContainer/GridContainer"]
+layout_mode = 2
+text = "Steps
+"
+horizontal_alignment = 1
+
+[node name="StepsNumber" type="Label" parent="CanvasLayer/Panel/CenterContainer/GridContainer"]
+layout_mode = 2
+text = "0"
+horizontal_alignment = 1
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(15, 15)
+position_smoothing_enabled = true
+script = ExtResource("1_el8th")
+
+[node name="TileMap" type="TileMap" parent="." node_paths=PackedStringArray("game_of_life")]
+tile_set = SubResource("TileSet_qghc1")
+format = 2
+script = ExtResource("3_1hd7t")
+game_of_life = NodePath("../GameOfLife")
+
+[node name="GameOfLife" type="Node" parent="."]
+script = ExtResource("3_fckyp")
+
+[node name="Timer" type="Timer" parent="GameOfLife"]
+one_shot = true
+
+[node name="AddBlock" type="Node2D" parent="." node_paths=PackedStringArray("tilemap", "game_of_life")]
+script = ExtResource("5_40op3")
+tilemap = NodePath("../TileMap")
+game_of_life = NodePath("../GameOfLife")
+
+[connection signal="pressed" from="CanvasLayer/Panel/CenterContainer/GridContainer/Start" to="CanvasLayer" method="_on_start_pressed"]
+[connection signal="pressed" from="CanvasLayer/Panel/CenterContainer/GridContainer/NextStep" to="CanvasLayer" method="_on_next_step_pressed"]
+[connection signal="pressed" from="CanvasLayer/Panel/CenterContainer/GridContainer/Reset" to="CanvasLayer" method="_on_reset_pressed"]
+[connection signal="timeout" from="GameOfLife/Timer" to="GameOfLife" method="_on_timer_timeout"]
